@@ -3,11 +3,12 @@
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
+// importamos serve-favicon
+var favicon = require('serve-favicon');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 // Importar MW routers generados del directorio ./routes
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
 // Crear aplicación express.
 var app = express();
 
@@ -16,6 +17,8 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 // Instalar renderizador de vistas EJS.
 app.set('view engine', 'ejs');
+// Instalamos serve-favicon
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 // Instalar MWs instalados como paquetes npm.
 // Estos procesan partes de req o res: http://expressjs.com/en/resources/middleware.html
 app.use(logger('dev'));
@@ -27,7 +30,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 // indexRouter atiende la ruta: /
 // usersRouter atiende la ruta: /users
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
