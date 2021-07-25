@@ -2,28 +2,53 @@
 <html>
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>iLife&Colour</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="/stylesheets/bootstrap.min.css" rel="stylesheet"/>
+
     <link rel='stylesheet' href='/stylesheets/style.css' />
 </head>
 <body>
-<header>
-    <h1>The iLife&Colour Site</h1>
-</header>
+    <header>
+        <h1>The iLife&Colour Site</h1>
+    </header>
 
-<nav>
-    <a href="/">Home</a>
-    <a href="/contact">Contact</a>
-</nav>
+    <nav class="navbar navbar-expand-sm navbar-dark bg-dark" aria-label="iLifeColour">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">iLife&Colour</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsILifeColour" aria-controls="navbarsILifeColour" aria-expanded="false" aria-label="iLifeColour">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-<section>
-    <div>
-        <%- body %>
-    </div>
-</section>
+            <div class="collapse navbar-collapse" id="navbarsILifeColour">
+                <ul class="navbar-nav me-auto mb-2 mb-sm-0">
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/contact">Contact</a>
+                    </li>
+                </ul>        
+            </div><!-- #collapse navbar-collapse -->
+            
+        </div><!-- #container-fluid -->
+    </nav>
 
-<footer>
-    <p>(c) XugarEn 2021</p>
-</footer>
+    <section>
+        <div>
+            <%- body %>
+        </div>
+    </section>
 
+    <footer>
+        <h6>(c) XugarEn, 2021</h6>
+    </footer>
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="/javascripts/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+    
 </body>
 </html>
