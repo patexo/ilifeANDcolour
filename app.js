@@ -9,6 +9,8 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 // importamos express-partials
 var partials = require('express-partials');
+// importar method-override
+var methodOverride = require('method-override');
 // Importar MW routers generados del directorio ./routes
 var indexRouter = require('./routes/index');
 // Crear aplicación express.
@@ -27,6 +29,8 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+// instalar method-override
+app.use(methodOverride('_method', {methods: ["POST", "GET"]}));
 app.use(express.static(path.join(__dirname, 'public')));
 // instalamos express-partials
 app.use(partials());
