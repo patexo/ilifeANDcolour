@@ -1,6 +1,8 @@
 const Sequelize = require("sequelize");
 const {models} = require("../models");
 
+const paginate = require('../helpers/paginate').paginate;
+
 // Autoload el instant asociado a :instantId
 exports.load = async (req, res, next, instantId) => {
 
@@ -22,7 +24,26 @@ exports.load = async (req, res, next, instantId) => {
 exports.index = async (req, res, next) => {
 
     try {
-        const instants = await models.Instant.findAll();
+
+        const count = await models.Instant.count();
+
+        // Pagination:
+
+        const items_per_page = 10;
+
+        // The page to show is given in the query
+        const pageno = parseInt(req.query.pageno) || 1;
+
+        // Create a String with the HTMl used to render the pagination buttons.
+        // This String is added to a local variable of res, which is used into the application layout file.
+        res.locals.paginate_control = paginate(count, items_per_page, pageno, req.url);
+
+        const findOptions = {
+            offset: items_per_page * (pageno - 1),
+            limit: items_per_page
+        };
+
+        const instants = await models.Instant.findAll(findOptions);
         res.render('instants/index.ejs', {instants});
     } catch (error) {
         next(error);
