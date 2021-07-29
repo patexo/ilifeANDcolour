@@ -1,4 +1,6 @@
 const Sequelize = require("sequelize");
+// Op es una abreviatura para hacer mas compactas las expresiones de búsqueda.
+const Op = Sequelize.Op;
 const {models} = require("../models");
 
 const paginate = require('../helpers/paginate').paginate;
@@ -23,9 +25,21 @@ exports.load = async (req, res, next, instantId) => {
 // GET /instants
 exports.index = async (req, res, next) => {
 
+    let countOptions = {};
+    let findOptions = {};
+
+    // Search:
+    const search = req.query.search || '';
+    if (search) {
+        const search_like = "%" + search.replace(/ +/g,"%") + "%";
+
+        countOptions.where = {title: { [Op.like]: search_like }};
+        findOptions.where = {title: { [Op.like]: search_like }};
+    }
+
     try {
 
-        const count = await models.Instant.count();
+        const count = await models.Instant.count(countOptions);
 
         // Pagination:
 
@@ -38,13 +52,14 @@ exports.index = async (req, res, next) => {
         // This String is added to a local variable of res, which is used into the application layout file.
         res.locals.paginate_control = paginate(count, items_per_page, pageno, req.url);
 
-        const findOptions = {
-            offset: items_per_page * (pageno - 1),
-            limit: items_per_page
-        };
+        findOptions.offset = items_per_page * (pageno - 1);
+        findOptions.limit = items_per_page;
 
         const instants = await models.Instant.findAll(findOptions);
-        res.render('instants/index.ejs', {instants});
+        res.render('instants/index.ejs', {
+            instants,
+            search
+        });
     } catch (error) {
         next(error);
     }
