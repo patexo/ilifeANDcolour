@@ -99,13 +99,15 @@ exports.create = async (req, res, next) => {
     try {
         // Saves only the fields title and description into the DDBB
         instant = await instant.save({fields: ["title", "description"]});
+        req.flash('success', 'Instant created successfully.');
         res.redirect('/instants/' + instant.id);
     } catch (error) {
         if (error instanceof Sequelize.ValidationError) {
-            console.log('There are errors in the form:');
-            error.errors.forEach(({message}) => console.log(message));
+            req.flash('error', 'There are errors in the form:');
+            error.errors.forEach(({message}) => req.flash('error', message));
             res.render('instants/new', {instant});
         } else {
+            req.flash('error', 'Error creating a new Instant: ' + error.message);
             next(error);
         }
     }
@@ -132,13 +134,15 @@ exports.update = async (req, res, next) => {
 
     try {
         await instant.save({fields: ["title", "description"]});
+        req.flash('success', 'Instant edited successfully.');
         res.redirect('/instants/' + instant.id);
     } catch (error) {
         if (error instanceof Sequelize.ValidationError) {
-            console.log('There are errors in the form:');
-            error.errors.forEach(({message}) => console.log(message));
+            req.flash('error', 'There are errors in the form:');
+            error.errors.forEach(({message}) => req.flash('error', message));
             res.render('instants/edit', {instant});
         } else {
+            req.flash('error', 'Error editing the Instant: ' + error.message);
             next(error);
         }
     }
@@ -150,8 +154,10 @@ exports.destroy = async (req, res, next) => {
 
     try {
         await req.load.instant.destroy();
+        req.flash('success', 'Instant deleted successfully.');
         res.redirect('/instants');
     } catch (error) {
+        req.flash('error', 'Error deleting the Instant: ' + error.message);
         next(error);
     }
 };

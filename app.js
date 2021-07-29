@@ -7,8 +7,12 @@ var path = require('path');
 var favicon = require('serve-favicon');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+// importamos express-session
+var session = require('express-session');
 // importamos express-partials
 var partials = require('express-partials');
+// importamos express-flash
+var flash = require('express-flash');
 // importar method-override
 var methodOverride = require('method-override');
 // Importar MW routers generados del directorio ./routes
@@ -29,11 +33,19 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+// Configuracion de la session para almacenarla en BBDD Redis.
+app.use(session({secret: "iLiveANDColour",  //secret: semilla de cifrado de la cookie
+  resave: false,    //resave, saveUninitialized: fuerzan guardar siempre sesiones aunque no estén inicializadas
+  saveUninitialized: true}));
+
 // instalar method-override
 app.use(methodOverride('_method', {methods: ["POST", "GET"]}));
 app.use(express.static(path.join(__dirname, 'public')));
 // instalamos express-partials
 app.use(partials());
+// instalamos express-flash
+app.use(flash());
 // Instalar MW routers generados:
 // indexRouter atiende la ruta: /
 // usersRouter atiende la ruta: /users
