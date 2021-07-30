@@ -155,7 +155,7 @@ exports.destroy = async (req, res, next) => {
     try {
         await req.load.instant.destroy();
         req.flash('success', 'Instant deleted successfully.');
-        res.redirect('/instants');
+        res.redirect('/goback');
     } catch (error) {
         req.flash('error', 'Error deleting the Instant: ' + error.message);
         next(error);
