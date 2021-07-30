@@ -9,6 +9,8 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 // importamos express-session
 var session = require('express-session');
+// Importar connect-session-sequelize para configurar la gestión de sesiones con la tabla Sessions.
+var SequelizeStore = require('connect-session-sequelize')(session.Store);
 // importamos express-partials
 var partials = require('express-partials');
 // importamos express-flash
@@ -33,6 +35,21 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+// Configuracion de la session para almacenarla en BBDD usando Sequelize.
+var sequelize = require("./models");
+var sessionStore = new SequelizeStore({
+  db: sequelize,
+  table: "Session",
+  checkExpirationInterval: 15 * 60 * 1000, // The interval at which to cleanup expired sessions in milliseconds. (15 minutes)
+  expiration: 4 * 60 * 60 * 1000  // The maximum age (in milliseconds) of a valid session. (4 hours)
+});
+app.use(session({
+  secret: "iLiveANDColour",
+  store: sessionStore,
+  resave: false,
+  saveUninitialized: true
+}));
 
 // Configuracion de la session para almacenarla en BBDD Redis.
 app.use(session({secret: "iLiveANDColour",  //secret: semilla de cifrado de la cookie
