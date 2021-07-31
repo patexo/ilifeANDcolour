@@ -14,6 +14,9 @@ const sequelize = new Sequelize(url);
 // Import the definition of the Instant Table from instant.js
 sequelize.import(path.join(__dirname, 'instant'));
 
+// Import the definition of the Users Table from user.js
+sequelize.import(path.join(__dirname,'user'));
+
 // Session
 sequelize.import(path.join(__dirname,'session'));
 

@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 /* Importar el controlador del recurso Instants para acceder a sus MWs. */
 const instantController = require('../controllers/instant');
+const userController = require('../controllers/user');
 
 //-----------------------------------------------------------
 
@@ -30,6 +31,7 @@ router.get(
     [
       '/',
       '/contact',
+      '/users',
       '/instants'
     ],
     saveBack);
@@ -51,6 +53,16 @@ router.get('/contact', (req, res, next) => {
 // Autoload for routes using :instantId
 router.param('instantId', instantController.load);
 
+router.param('userId', userController.load);
+
+// Routes for the resource /users
+router.get('/users',                    userController.index);
+router.get('/users/:userId(\\d+)',      userController.show);
+router.get('/users/new',                userController.new);
+router.post('/users',                   userController.create);
+router.get('/users/:userId(\\d+)/edit', userController.edit);
+router.put('/users/:userId(\\d+)',      userController.update);
+router.delete('/users/:userId(\\d+)',   userController.destroy);
 
 // Routes for the resource /instants
 router.get('/instants',                        instantController.index);
