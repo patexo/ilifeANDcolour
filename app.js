@@ -17,6 +17,8 @@ var partials = require('express-partials');
 var flash = require('express-flash');
 // importar method-override
 var methodOverride = require('method-override');
+// importar passport para login session y logout
+const passport = require('passport');
 // Importar MW routers generados del directorio ./routes
 var indexRouter = require('./routes/index');
 // Crear aplicación express.
@@ -63,6 +65,28 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(partials());
 // instalamos express-flash
 app.use(flash());
+
+// Inicializa Passport y define loginUser como la propiedad de req que contiene al usuario autenticado si existe
+app.use(passport.initialize( {
+  userProperty: 'loginUser' // defaults to 'user' if omitted
+}));
+// Conecta la session-delogin con la de cliente.
+app.use(passport.session());
+
+// req.loginUser se copia a res.locals.loginUser para hacerlo visible en todas vistas (para layout.ejs).
+// Dynamic Helper:
+app.use(function(req, res, next) {
+
+  // To use req.loginUser in the views
+  res.locals.loginUser = req.loginUser && {
+      id: req.loginUser.id,
+      displayName: req.loginUser.displayName,
+      isAdmin: req.loginUser.isAdmin
+  };
+
+  next();
+});
+
 // Instalar MW routers generados:
 // indexRouter atiende la ruta: /
 // usersRouter atiende la ruta: /users

@@ -3,6 +3,25 @@ var router = express.Router();
 /* Importar el controlador del recurso Instants para acceder a sus MWs. */
 const instantController = require('../controllers/instant');
 const userController = require('../controllers/user');
+const sessionController = require('../controllers/session');
+
+//-----------------------------------------------------------
+
+// Routes for the resource /login
+
+// autologout
+router.all('*',sessionController.checkLoginExpires);
+
+// login form
+router.get('/login', sessionController.new);
+
+// create login session
+router.post('/login',
+    sessionController.create,
+    sessionController.createLoginExpires);
+
+// logout - close login session
+router.delete('/login', sessionController.destroy);
 
 //-----------------------------------------------------------
 
@@ -26,7 +45,7 @@ function saveBack(req, res, next) {
 }
 
 // Restoration routes are GET routes that do not end in:
-//   /new, /edit, /play, /check, or /:id.
+//   /new, /edit, /play, /check, /login or /:id.
 router.get(
     [
       '/',
