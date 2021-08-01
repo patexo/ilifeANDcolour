@@ -17,6 +17,8 @@ var partials = require('express-partials');
 var flash = require('express-flash');
 // importar method-override
 var methodOverride = require('method-override');
+// Importar MW redirectToHTTPS.
+var redirectToHTTPS = require('express-http-to-https').redirectToHTTPS
 // El paquete dotenv debe importarse en app.js y configurarse para que muestre las variables definidas en el fichero .env en process.env.
 require('dotenv').config();
 // importar passport para login session y logout
@@ -31,6 +33,12 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 // Instalar renderizador de vistas EJS.
 app.set('view engine', 'ejs');
+
+// Instalar MW redirectToHTTPS excluyendo redirigir cuando el servidor está instalado en localhost en cualquier puerto.
+// Redirect HTTP to HTTPS.
+// Don't redirect if the hostname is localhost:port (port=3000,5000)
+app.use(redirectToHTTPS([/localhost:(\d{4})/], [], 301));
+
 // Instalamos serve-favicon
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 // Instalar MWs instalados como paquetes npm.

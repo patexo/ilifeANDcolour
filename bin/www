@@ -7,6 +7,15 @@
 var app = require('../app');
 var debug = require('debug')('ilifeandcolour:server');
 var http = require('http');
+// Importar paquetes (https://nodejs.org/api):
+// - https: código del servidor https
+// - fs: acceso a ficheros del servidor
+// - path: gestor de rutas
+// - os: propiedades del sistema operativo
+const https = require('https');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
 
 /**
  * Get port from environment and store in Express.
@@ -26,8 +35,39 @@ var server = http.createServer(app);
  */
 
 server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+server.on('error', onError.bind(undefined, port));
+server.on('listening', onListening.bind(undefined, server));
+
+/**
+ * ======================================================================
+ * Creates HTTPS server if there exist certificate files.
+ * ======================================================================
+ */
+try {
+    const options = {
+        key: fs.readFileSync("/etc/certificates/llave.pem"),
+        cert: fs.readFileSync("/etc/certificates/certificado.pem"),
+        ca: fs.readFileSync("/etc/certificates/cadDigiCertCA.pem")
+    };
+
+    var sport = normalizePort(process.env.SPORT || '3443');
+    app.set('sport', sport);
+
+    // Create HTTPS server.
+    const secureServer = https.createServer(options, app);
+
+    secureServer.listen(sport);
+
+    secureServer.on('error', onError.bind(undefined, sport));
+    secureServer.on('listening', onListening.bind(undefined, secureServer));
+
+} catch (err) {
+  if (err.code === 'ENOENT') {
+    debug("There are no SSL certificate files. No HTTPS Server created.");
+  } else {
+    debug(`ERROR: ${err.message || err}.`);
+  }
+}
 
 /**
  * Normalize a port into a number, string, or false.
@@ -53,27 +93,25 @@ function normalizePort(val) {
  * Event listener for HTTP server "error" event.
  */
 
-function onError(error) {
+ function onError(port, error) {
   if (error.syscall !== 'listen') {
-    throw error;
+      throw error;
   }
 
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+  var bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
 
   // handle specific listen errors with friendly messages
   switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
-      throw error;
+      case 'EACCES':
+          console.error(bind + ' requires elevated privileges');
+          process.exit(1);
+          break;
+      case 'EADDRINUSE':
+          console.error(bind + ' is already in use');
+          process.exit(1);
+          break;
+      default:
+          throw error;
   }
 }
 
@@ -81,10 +119,8 @@ function onError(error) {
  * Event listener for HTTP server "listening" event.
  */
 
-function onListening() {
+ function onListening(server) {
   var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+  var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
+  debug('HTTP Express Server Listening on ' + bind);
 }
