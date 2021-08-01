@@ -112,21 +112,21 @@ router.param('instantId', instantController.load);
 router.param('userId', userController.load);
 
 // Routes for the resource /users
-router.get('/users',                    userController.index);
-router.get('/users/:userId(\\d+)',      userController.show);
+router.get('/users',                    sessionController.loginRequired, userController.index);
+router.get('/users/:userId(\\d+)',      sessionController.loginRequired, userController.show);
 router.get('/users/new',                userController.new);
 router.post('/users',                   userController.create);
-router.get('/users/:userId(\\d+)/edit', userController.isLocalRequired, userController.edit);
-router.put('/users/:userId(\\d+)',      userController.isLocalRequired, userController.update);
-router.delete('/users/:userId(\\d+)',   userController.destroy);
+router.get('/users/:userId(\\d+)/edit', sessionController.loginRequired, userController.isLocalRequired, sessionController.adminOrMyselfRequired, userController.edit);
+router.put('/users/:userId(\\d+)',      sessionController.loginRequired, userController.isLocalRequired, sessionController.adminOrMyselfRequired, userController.update);
+router.delete('/users/:userId(\\d+)',   sessionController.loginRequired, sessionController.adminOrMyselfRequired,userController.destroy);
 
 // Routes for the resource /instants
 router.get('/instants',                        instantController.index);
 router.get('/instants/:instantId(\\d+)',       instantController.show);
-router.get('/instants/new',                    instantController.new);
-router.post('/instants',                       instantController.create);
-router.get('/instants/:instantId(\\d+)/edit',  instantController.edit);
-router.put('/instants/:instantId(\\d+)',       instantController.update);
-router.delete('/instants/:instantId(\\d+)',    instantController.destroy);
+router.get('/instants/new',                    sessionController.loginRequired, instantController.new);
+router.post('/instants',                       sessionController.loginRequired, instantController.create);
+router.get('/instants/:instantId(\\d+)/edit',  sessionController.loginRequired, instantController.edit);
+router.put('/instants/:instantId(\\d+)',       sessionController.loginRequired, instantController.update);
+router.delete('/instants/:instantId(\\d+)',    sessionController.loginRequired, instantController.destroy);
 
 module.exports = router;
