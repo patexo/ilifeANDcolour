@@ -17,6 +17,8 @@ var partials = require('express-partials');
 var flash = require('express-flash');
 // importar method-override
 var methodOverride = require('method-override');
+// El paquete dotenv debe importarse en app.js y configurarse para que muestre las variables definidas en el fichero .env en process.env.
+require('dotenv').config();
 // importar passport para login session y logout
 const passport = require('passport');
 // Importar MW routers generados del directorio ./routes
