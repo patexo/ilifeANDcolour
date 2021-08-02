@@ -43,16 +43,34 @@ exports.adminOrAuthorRequired = (req, res, next) => {
 // GET /instants
 exports.index = async (req, res, next) => {
 
-    let countOptions = {};
-    let findOptions = {};
+    let countOptions = {
+        where: {}
+    };
+    let findOptions = {
+        where: {}
+    };
+
+    let title = "Instants";
 
     // Search:
     const search = req.query.search || '';
     if (search) {
         const search_like = "%" + search.replace(/ +/g,"%") + "%";
 
-        countOptions.where = {title: { [Op.like]: search_like }};
-        findOptions.where = {title: { [Op.like]: search_like }};
+        countOptions.where.title = { [Op.like]: search_like };
+        findOptions.where.title = { [Op.like]: search_like };
+    }
+
+    // If there exists "req.load.user", then only the instants of that user are shown
+    if (req.load && req.load.user) {
+        countOptions.where.authorId = req.load.user.id;
+        findOptions.where.authorId = req.load.user.id;
+
+        if (req.loginUser && req.loginUser.id == req.load.user.id) {
+            title = "My Instants";
+        } else {
+            title = "Instants of " + req.load.user.username;
+        }
     }
 
     try {
@@ -77,7 +95,8 @@ exports.index = async (req, res, next) => {
         const instants = await models.Instant.findAll(findOptions);
         res.render('instants/index.ejs', {
             instants,
-            search
+            search,
+            title
         });
     } catch (error) {
         next(error);
