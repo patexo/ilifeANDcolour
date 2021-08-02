@@ -17,7 +17,10 @@
             <td>
                 <a href="/instants/<%= instant.id %>"><%= instant.title %></a>
             </td>
-            <% if (locals.loginUser) { %>
+            <td colspan="2">
+                <small> (by <%= instant.author ? instant.author.displayName : "Anonymous" %>) </small>
+            </td>
+            <% if (locals.loginUser && (locals.loginUser.isAdmin || locals.loginUser.id === instant.authorId)) { %>
                 <td>
                     <a href="/instants/<%= instant.id %>" class="button">Show</a>
                 </td>

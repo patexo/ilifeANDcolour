@@ -140,8 +140,8 @@ router.get('/instants',                        instantController.index);
 router.get('/instants/:instantId(\\d+)',       instantController.show);
 router.get('/instants/new',                    sessionController.loginRequired, instantController.new);
 router.post('/instants',                       sessionController.loginRequired, instantController.create);
-router.get('/instants/:instantId(\\d+)/edit',  sessionController.loginRequired, instantController.edit);
-router.put('/instants/:instantId(\\d+)',       sessionController.loginRequired, instantController.update);
-router.delete('/instants/:instantId(\\d+)',    sessionController.loginRequired, instantController.destroy);
+router.get('/instants/:instantId(\\d+)/edit',  sessionController.loginRequired, instantController.adminOrAuthorRequired, instantController.edit);
+router.put('/instants/:instantId(\\d+)',       sessionController.loginRequired, instantController.adminOrAuthorRequired, instantController.update);
+router.delete('/instants/:instantId(\\d+)',    sessionController.loginRequired, instantController.adminOrAuthorRequired, instantController.destroy);
 
 module.exports = router;

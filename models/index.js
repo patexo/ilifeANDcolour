@@ -12,12 +12,17 @@ const url = process.env.DATABASE_URL || "sqlite:instant.sqlite";
 const sequelize = new Sequelize(url);
 
 // Import the definition of the Instant Table from instant.js
-sequelize.import(path.join(__dirname, 'instant'));
+const Instant = sequelize.import(path.join(__dirname, 'instant'));
 
 // Import the definition of the Users Table from user.js
-sequelize.import(path.join(__dirname,'user'));
+const User = sequelize.import(path.join(__dirname,'user'));
 
 // Session
 sequelize.import(path.join(__dirname,'session'));
+
+
+// Relation 1-to-N between User and Instant:
+User.hasMany(Instant, {as: 'instants', foreignKey: 'authorId'});
+Instant.belongsTo(User, {as: 'author', foreignKey: 'authorId'});
 
 module.exports = sequelize;
