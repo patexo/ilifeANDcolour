@@ -114,8 +114,23 @@ router.param('userId', userController.load);
 // Routes for the resource /users
 router.get('/users',                    sessionController.loginRequired, userController.index);
 router.get('/users/:userId(\\d+)',      sessionController.loginRequired, userController.show);
-router.get('/users/new',                userController.new);
-router.post('/users',                   userController.create);
+
+if (!!process.env.QUIZ_OPEN_REGISTER) {
+  router.get('/users/new',
+      userController.new);
+  router.post('/users',
+      userController.create);
+} else {
+  router.get('/users/new',
+      sessionController.loginRequired,
+      sessionController.adminRequired,
+      userController.new);
+  router.post('/users',
+      sessionController.loginRequired,
+      sessionController.adminRequired,
+      userController.create);
+}
+
 router.get('/users/:userId(\\d+)/edit', sessionController.loginRequired, userController.isLocalRequired, sessionController.adminOrMyselfRequired, userController.edit);
 router.put('/users/:userId(\\d+)',      sessionController.loginRequired, userController.isLocalRequired, sessionController.adminOrMyselfRequired, userController.update);
 router.delete('/users/:userId(\\d+)',   sessionController.loginRequired, sessionController.adminOrMyselfRequired,userController.destroy);
