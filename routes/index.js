@@ -1,5 +1,11 @@
 var express = require('express');
 var router = express.Router();
+
+const multer = require('multer');
+const upload = multer({
+    dest: './uploads/',
+    limits: {fileSize: 20 * 1024 * 1024}});
+
 /* Importar el controlador del recurso Instants para acceder a sus MWs. */
 const instantController = require('../controllers/instant');
 const userController = require('../controllers/user');
@@ -141,9 +147,9 @@ router.get('/users/:userId(\\d+)/instants', sessionController.loginRequired, ins
 router.get('/instants',                        instantController.index);
 router.get('/instants/:instantId(\\d+)',       instantController.show);
 router.get('/instants/new',                    sessionController.loginRequired, instantController.new);
-router.post('/instants',                       sessionController.loginRequired, instantController.create);
+router.post('/instants',                       sessionController.loginRequired, upload.single('image'), instantController.create);
 router.get('/instants/:instantId(\\d+)/edit',  sessionController.loginRequired, instantController.adminOrAuthorRequired, instantController.edit);
-router.put('/instants/:instantId(\\d+)',       sessionController.loginRequired, instantController.adminOrAuthorRequired, instantController.update);
+router.put('/instants/:instantId(\\d+)',       sessionController.loginRequired, instantController.adminOrAuthorRequired, upload.single('image'), instantController.update);
 router.delete('/instants/:instantId(\\d+)',    sessionController.loginRequired, instantController.adminOrAuthorRequired, instantController.destroy);
 
 module.exports = router;

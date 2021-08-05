@@ -7,9 +7,21 @@
     Show Instant:
 </h1>
 
-<ul>
-    <li>Title: <b><%= instant.title %></b></li>
-    <li>Description: <b><%= instant.description %></b></li>
-</ul>
+<div class="instantItem">
+
+    <div>
+        <% var attachment = instant.attachment; %>
+        <% include ../attachments/_show %>
+    </div>
+
+    <div>
+        Title: <b><%= instant.title %></b>
+        <br />
+        Description: <b><%= instant.description %></b>
+        <br />
+        <small> by <%= instant.author ? instant.author.displayName : "Anonymous" %> </small>
+    </div>
+
+</div>
 
 <a href="/goback" class="button">Go back</a>

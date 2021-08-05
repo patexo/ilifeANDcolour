@@ -2,6 +2,6 @@
     Edit Instant:
 </h1>
 
-<form method="post" action="/instants/<%= instant.id %>?_method=PUT" >
+<form method="post" action="/instants/<%= instant.id %>?_method=PUT" enctype="multipart/form-data" >
     <% include _form.ejs %>
 </form>

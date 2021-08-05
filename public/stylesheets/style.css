@@ -38,6 +38,16 @@ a.button:hover {
   float: right;
 }
 
+.attachment {
+  border-radius: 10px;
+  border: 2px solid #00f;
+  object-fit: cover;
+  width: 100px;
+  height: 100px;
+}
+
+/* ------------------------- */
+
 .wideRow {
   display: flex;
   flex-flow: row wrap;
@@ -59,6 +69,79 @@ a.button:hover {
   height: 24px;
   vertical-align: middle;
 }
+
+/* ------------------------- */
+
+#instantsIndex {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#instantsIndex tr {
+  background-color: #e5e5e5;
+
+  border: 1px dotted #636363;
+  border-radius: 5px;
+}
+
+#instantsIndex tr:nth-child(even) {
+  background-color: #cfcfcf
+}
+
+#instantsIndex td {
+  padding: 3px;
+  margin: 2px;
+}
+
+#instantsIndex tr td:nth-child(1) {
+  text-align: center;
+  width: 150px;
+}
+
+#instantsIndex tr td:nth-child(2) {
+  vertical-align: top;
+  text-align: left;
+}
+
+#instantsIndex tr td:nth-child(3) {
+  vertical-align: bottom;
+  text-align: right;
+}
+
+/* ------------------------- */
+
+.instantItem {
+  display: flex;
+  flex-flow: row wrap;
+  align-content: stretch;
+
+  width: 100%;
+  border: 1px dotted #636363;
+  border-radius: 5px;
+  background-color: #e5e5e5;
+
+  margin: 10px 0px;
+}
+
+.instantItem div {
+  padding: 5px;
+  margin: 2px;
+}
+
+.instantItem div:nth-child(1) {
+  flex: 0 auto;
+
+  text-align: center;
+  width: 150px;
+}
+
+.instantItem div:nth-child(2) {
+  flex: 1 auto;
+
+  text-align: left;
+}
+
+/* ------------------------- */
 
 #flashinfo {
   width: auto;

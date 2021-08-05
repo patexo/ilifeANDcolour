@@ -2,8 +2,10 @@ const Sequelize = require("sequelize");
 // Op es una abreviatura para hacer mas compactas las expresiones de búsqueda.
 const Op = Sequelize.Op;
 const {models} = require("../models");
+const attHelper = require("../helpers/attachments");
 
 const paginate = require('../helpers/paginate').paginate;
+
 
 // Autoload el instant asociado a :instantId
 exports.load = async (req, res, next, instantId) => {
@@ -11,6 +13,7 @@ exports.load = async (req, res, next, instantId) => {
     try {
         const instant = await models.Instant.findByPk(instantId, {
             include: [ 
+                {model: models.Attachment, as: 'attachment'},
                 {model: models.User, as: 'author'} 
             ]
         });
@@ -90,12 +93,15 @@ exports.index = async (req, res, next) => {
 
         findOptions.offset = items_per_page * (pageno - 1);
         findOptions.limit = items_per_page;
-        findOptions.include = [{model: models.User, as: 'author'}];
+        findOptions.include = [
+            {model: models.Attachment, as: 'attachment'},
+            {model: models.User, as: 'author'}];
 
         const instants = await models.Instant.findAll(findOptions);
         res.render('instants/index.ejs', {
             instants,
             search,
+            attHelper,
             title
         });
     } catch (error) {
@@ -109,7 +115,10 @@ exports.show = (req, res, next) => {
 
     const {instant} = req.load;
 
-    res.render('instants/show', {instant});
+    res.render('instants/show', {
+        instant,
+        attHelper
+    });
 };
 
 
@@ -141,7 +150,19 @@ exports.create = async (req, res, next) => {
         // Saves only the fields title and description into the DDBB
         instant = await instant.save({fields: ["title", "description", "authorId"]});
         req.flash('success', 'Instant created successfully.');
-        res.redirect('/instants/' + instant.id);
+
+        try {
+            if (!req.file) {
+                req.flash('info', 'Instant without attachment.');
+                return;
+            }
+            // Create the instant attachment
+            await createInstantAttachment(req, instant);
+        } catch (error) {
+            req.flash('error', 'Failed to create attachment:' + error.message);
+        } finally {
+            res.redirect('/instants/' + instant.id);
+        }
     } catch (error) {
         if (error instanceof Sequelize.ValidationError) {
             req.flash('error', 'There are errors in the form:');
@@ -149,11 +170,41 @@ exports.create = async (req, res, next) => {
             res.render('instants/new', {instant});
         } else {
             req.flash('error', 'Error creating a new Instant: ' + error.message);
-            next(error);
+            next(error)
+        }
+    } finally {
+        // delete the file uploaded to ./uploads by multer.
+        if (req.file) {
+            attHelper.deleteLocalFile(req.file.path);
         }
     }
 };
 
+// Aux function to upload req.file to cloudinary, create an attachment with it, and
+// associate it with the gien instant.
+// This function is called from the create an update middleware. DRY.
+const createInstantAttachment = async (req, instant) => {
+
+    // Save the attachment into Cloudinary
+    const uploadResult = await attHelper.uploadResource(req);
+
+    let attachment;
+    try {
+        // Create the new attachment into the data base.
+        attachment = await models.Attachment.create({
+            resource: uploadResult.resource,
+            url: uploadResult.url,
+            filename: req.file.originalname,
+            mime: req.file.mimetype
+        });
+        await instant.setAttachment(attachment);
+        req.flash('success', 'Attachment saved successfully.');
+    } catch (error) { // Ignoring validation errors
+        req.flash('error', 'Failed linking attachment: ' + error.message);
+        attHelper.deleteResource(uploadResult.resource);
+        attachment && attachment.destroy();
+    }
+};
 
 // GET /instants/:instantId/edit
 exports.edit = (req, res, next) => {
@@ -176,7 +227,30 @@ exports.update = async (req, res, next) => {
     try {
         await instant.save({fields: ["title", "description"]});
         req.flash('success', 'Instant edited successfully.');
-        res.redirect('/instants/' + instant.id);
+
+        try {
+            if (req.body.keepAttachment) return; // Don't change the attachment.
+
+            // Delete old attachment.
+            if (instant.attachment) {
+                attHelper.deleteResource(instant.attachment.resource);
+                await instant.attachment.destroy();
+                await instant.setAttachment();
+            }
+
+            if (!req.file) {
+                req.flash('info', 'Instant without attachment.');
+                return;
+            }
+
+            // Create the instant attachment
+            await createInstantAttachment(req, instant);
+
+        } catch (error) {
+            req.flash('error', 'Failed saving the new attachment: ' + error.message);
+        } finally {
+            res.redirect('/instants/' + instant.id);
+        }
     } catch (error) {
         if (error instanceof Sequelize.ValidationError) {
             req.flash('error', 'There are errors in the form:');
@@ -186,6 +260,12 @@ exports.update = async (req, res, next) => {
             req.flash('error', 'Error editing the Instant: ' + error.message);
             next(error);
         }
+
+    } finally {
+        // delete the file uploaded to ./uploads by multer.
+        if (req.file) {
+            attHelper.deleteLocalFile(req.file.path);
+        }
     }
 };
 
@@ -193,8 +273,19 @@ exports.update = async (req, res, next) => {
 // DELETE /instants/:instantId
 exports.destroy = async (req, res, next) => {
 
+    const attachment = req.load.instant.attachment;
+
+    // Delete the attachment
+    if (attachment) {
+        try {
+            attHelper.deleteResource(attachment.resource);
+        } catch (error) {
+        }
+    }
+
     try {
         await req.load.instant.destroy();
+        attachment && await attachment.destroy();
         req.flash('success', 'Instant deleted successfully.');
         res.redirect('/goback');
     } catch (error) {
