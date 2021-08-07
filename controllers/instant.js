@@ -14,7 +14,14 @@ exports.load = async (req, res, next, instantId) => {
         const instant = await models.Instant.findByPk(instantId, {
             include: [ 
                 {model: models.Attachment, as: 'attachment'},
-                {model: models.User, as: 'author'} 
+                {
+                    model: models.User, 
+                    as: 'author',
+                    include: [{
+                        model: models.Attachment,
+                        as: "photo"
+                    }]
+                } 
             ]
         });
         if (instant) {
@@ -95,7 +102,15 @@ exports.index = async (req, res, next) => {
         findOptions.limit = items_per_page;
         findOptions.include = [
             {model: models.Attachment, as: 'attachment'},
-            {model: models.User, as: 'author'}];
+            {
+                model: models.User,
+                as: 'author',
+                include: [{
+                    model: models.Attachment,
+                    as: "photo"
+                }]
+            }
+        ];
 
         const instants = await models.Instant.findAll(findOptions);
         res.render('instants/index.ejs', {

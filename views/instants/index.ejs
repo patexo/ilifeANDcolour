@@ -21,13 +21,20 @@
             </td>
             <td colspan="2">
 
-            <td>
-                
-                <br />
-                <small> (by <%= instant.author ? instant.author.displayName : "Anonymous" %>) </small>
-            </td>
 
             <td>
+                <% if (instant.author && instant.author.photo) { %>
+                    <img class="miniphoto" src="<%= instant.author.photo.url %>"/>
+                <% } else { %>
+                    <img class="miniphoto" src="/images/face.png"/>
+                <% } %>
+
+                <br/>
+
+                <small> <%= instant.author ? instant.author.displayName : "Anonymous" %> </small>
+                
+                <br/>
+
                 <% if (locals.loginUser && (locals.loginUser.isAdmin || locals.loginUser.id === instant.authorId)) { %>
                     <a href="/instants/<%= instant.id %>" class="button">Show</a>
                 

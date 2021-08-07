@@ -192,6 +192,21 @@ async (accessToken, refreshToken, profile, done) => {
                 profileName: profile.username
             }
         });
+
+        // Update Photo
+        const newPhotoUrl = profile.photos && profile.photos[0] && profile.photos[0].value;
+        const oldPhoto = await user.getPhoto();
+        const oldPhotoUrl = oldPhoto && oldPhoto.url;
+        if (newPhotoUrl !== oldPhotoUrl) {
+            // Destroy old photo:
+            oldPhoto && await oldPhoto.destroy();
+
+            // Create and set new photo:
+            if (newPhotoUrl) {
+                let photo = await models.Attachment.create({url: newPhotoUrl});
+                await user.setPhoto(photo);
+            }
+        }
         done(null, user);
     } catch(error) {
         done(error, null);
@@ -224,6 +239,21 @@ async (token, tokenSecret, profile, done) => {
             }
         });
         done(null, user);
+
+         // Update Photo
+         const newPhotoUrl = profile.photos && profile.photos[0] && profile.photos[0].value;
+         const oldPhoto = await user.getPhoto();
+         const oldPhotoUrl = oldPhoto && oldPhoto.url;
+         if (newPhotoUrl !== oldPhotoUrl) {
+             // Destroy old photo:
+             oldPhoto && await oldPhoto.destroy();
+
+             // Create and set new photo:
+             if (newPhotoUrl) {
+                 let photo = await models.Attachment.create({url: newPhotoUrl});
+                 await user.setPhoto(photo);
+             }
+         }
     } catch(error) {
         done(error, null);
     }
@@ -254,6 +284,21 @@ async (accessToken, refreshToken, profile, done) => {
                 profileName: profile.displayName.replace(/ /g,"")
             }
         });
+
+        // Update Photo
+        const newPhotoUrl = profile.photos && profile.photos[0] && profile.photos[0].value;
+        const oldPhoto = await user.getPhoto();
+        const oldPhotoUrl = oldPhoto && oldPhoto.url;
+        if (newPhotoUrl !== oldPhotoUrl) {
+            // Destroy old photo:
+            oldPhoto && await oldPhoto.destroy();
+
+            // Create and set new photo:
+            if (newPhotoUrl) {
+                let photo = await models.Attachment.create({url: newPhotoUrl});
+                await user.setPhoto(photo);
+            }
+        }
         done(null, user);
     } catch(error) {
         done(error, null);
@@ -287,6 +332,21 @@ async (accessToken, refreshToken, profile, done) => {
                 profileName: profile.displayName.replace(/ /g,"")
             }
         });
+
+        // Update Photo
+        const newPhotoUrl = profile.photos && profile.photos[0] && profile.photos[0].value;
+        const oldPhoto = await user.getPhoto();
+        const oldPhotoUrl = oldPhoto && oldPhoto.url;
+        if (newPhotoUrl !== oldPhotoUrl) {
+            // Destroy old photo:
+            oldPhoto && await oldPhoto.destroy();
+
+            // Create and set new photo:
+            if (newPhotoUrl) {
+                let photo = await models.Attachment.create({url: newPhotoUrl});
+                await user.setPhoto(photo);
+            }
+        }
         done(null, user);
     } catch(error) {
         done(error, null);

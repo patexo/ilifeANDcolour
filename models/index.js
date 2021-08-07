@@ -33,5 +33,8 @@ Instant.belongsTo(User, {as: 'author', foreignKey: 'authorId'});
 Attachment.hasOne(Instant, {as: 'instant', foreignKey: 'attachmentId'});
 Instant.belongsTo(Attachment, {as: 'attachment', foreignKey: 'attachmentId'});
 
+// Relation 1-to-1 between User and Attachment
+User.belongsTo(Attachment, {as: "photo", foreignKey: 'photoId'});
+Attachment.hasOne(User, {as: 'user', foreignKey: 'photoId'});
 
 module.exports = sequelize;
