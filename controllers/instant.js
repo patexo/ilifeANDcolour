@@ -11,20 +11,31 @@ const paginate = require('../helpers/paginate').paginate;
 // Autoload el instant asociado a :instantId
 exports.load = async (req, res, next, instantId) => {
 
-    try {
-        const instant = await models.Instant.findByPk(instantId, {
-            include: [ 
-                {model: models.Attachment, as: 'attachment'},
-                {
-                    model: models.User, 
-                    as: 'author',
-                    include: [{
-                        model: models.Attachment,
-                        as: "photo"
-                    }]
-                } 
-            ]
+    const options = {
+        include: [
+            {model: models.Attachment, as: 'attachment'},
+            {
+                model: models.User, as: 'author',
+                include: [{
+                    model: models.Attachment,
+                    as: "photo"
+                }]
+            }]
+    };
+
+    // For logged in users: include the favourites of the question by filtering by
+    // the logged in user with an OUTER JOIN.
+    if (req.loginUser) {
+        options.include.push({
+            model: models.User,
+            as: "fans",
+            where: {id: req.loginUser.id},
+            required: false  // OUTER JOIN
         });
+    }
+
+    try {
+        const instant = await models.Instant.findByPk(instantId, options);
         if (instant) {
             req.load = {...req.load, instant};
             next();
@@ -85,11 +96,15 @@ exports.adminOrAuthorRequired = (req, res, next) => {
 exports.index = async (req, res, next) => {
 
     let countOptions = {
-        where: {}
+        where: {},
+        include: []
     };
     let findOptions = {
-        where: {}
+        where: {},
+        include: []
     };
+
+    const searchfavourites = req.query.searchfavourites || "";
 
     let title = "Instants";
 
@@ -107,12 +122,42 @@ exports.index = async (req, res, next) => {
         countOptions.where.authorId = req.load.user.id;
         findOptions.where.authorId = req.load.user.id;
 
-        if (req.loginUser && req.loginUser.id == req.load.user.id) {
+        if (req.loginUser && req.loginUser.id === req.load.user.id) {
             title = "My Instants";
         } else {
             title = "Instants of " + req.load.user.username;
         }
     }
+
+    // Filter: my favourite instants:
+    if (req.loginUser) {
+        if (searchfavourites) {
+            const includeMyFans = {
+                model: models.User,
+                as: "fans",
+                where: {id: req.loginUser.id},
+                attributes: ['id']
+            };
+            countOptions.include.push(includeMyFans);
+            findOptions.include.push(includeMyFans);
+        } else {
+
+            // NOTE:
+            // It should be added the options ( or similars )
+            // to have a lighter query:
+            //    where: {id: req.loginUser.id},
+            //    required: false  // OUTER JOIN
+            // but this does not work with SQLite. The generated
+            // query fails when there are several fans of the same quiz.
+
+            findOptions.include.push({
+                model: models.User,
+                as: "fans",
+                attributes: ['id']
+            });
+        }
+    }
+
 
     try {
 
@@ -129,26 +174,39 @@ exports.index = async (req, res, next) => {
         // This String is added to a local variable of res, which is used into the application layout file.
         res.locals.paginate_control = paginate(count, items_per_page, pageno, req.url);
 
+
         findOptions.offset = items_per_page * (pageno - 1);
         findOptions.limit = items_per_page;
-        findOptions.include = [
-            {model: models.Attachment, as: 'attachment'},
-            {
-                model: models.User,
-                as: 'author',
-                include: [{
-                    model: models.Attachment,
-                    as: "photo"
-                }]
-            }
-        ];
+        
+        findOptions.include.push({
+            model: models.Attachment,
+            as: 'attachment'
+        });
+        findOptions.include.push({
+            model: models.User,
+            as: 'author',
+            include: [{
+                model: models.Attachment,
+                as: "photo"
+            }]
+        });
 
         const instants = await models.Instant.findAll(findOptions);
+
+        // Mark favourite instants:
+        if (req.loginUser) {
+            instants.forEach(instant => {
+                instant.favourite = instant.fans.some(fan => {
+                    return fan.id == req.loginUser.id;
+                });
+            });
+        }
         res.render('instants/index.ejs', {
             instants,
             search,
+            searchfavourites,
+            title,
             attHelper,
-            title
         });
     } catch (error) {
         next(error);
@@ -157,14 +215,28 @@ exports.index = async (req, res, next) => {
 
 
 // GET /instants/:instantId
-exports.show = (req, res, next) => {
+exports.show = async (req, res, next) => {
 
     const {instant} = req.load;
 
-    res.render('instants/show', {
-        instant,
-        attHelper
-    });
+    try {
+        // Only for logger users:
+        //   if this instant is one of my fovourites, then I create
+        //   the attribute "favourite = true"
+        if (req.loginUser) {
+            const fans = await instant.getFans({where: {id: req.loginUser.id}});
+            if (fans.length > 0) {
+                instant.favourite = true;
+            }
+        }
+
+        res.render('instants/show', {
+            instant,
+            attHelper
+        });
+    } catch (error) {
+        next(error);
+    }
 };
 
 

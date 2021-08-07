@@ -28,13 +28,30 @@ sequelize.import(path.join(__dirname,'session'));
 User.hasMany(Instant, {as: 'instants', foreignKey: 'authorId'});
 Instant.belongsTo(User, {as: 'author', foreignKey: 'authorId'});
 
-
 // Relation 1-to-1 between Instant and Attachment
 Attachment.hasOne(Instant, {as: 'instant', foreignKey: 'attachmentId'});
 Instant.belongsTo(Attachment, {as: 'attachment', foreignKey: 'attachmentId'});
 
+
 // Relation 1-to-1 between User and Attachment
-User.belongsTo(Attachment, {as: "photo", foreignKey: 'photoId'});
 Attachment.hasOne(User, {as: 'user', foreignKey: 'photoId'});
+User.belongsTo(Attachment, {as: "photo", foreignKey: 'photoId'});
+
+// Relation N-to-N between Instant and User:
+//    A User has many favourite instants.
+//    A instant has many fans (the users who have marked it as favorite)
+Instant.belongsToMany(User, {
+    as: 'fans',
+    through: 'Favourites',
+    foreignKey: 'instantId',
+    otherKey: 'userId'
+});
+
+User.belongsToMany(Instant, {
+    as: 'favouriteInstants',
+    through: 'Favourites',
+    foreignKey: 'userId',
+    otherKey: 'instantId'
+});
 
 module.exports = sequelize;

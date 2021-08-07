@@ -10,6 +10,7 @@ const upload = multer({
 const instantController = require('../controllers/instant');
 const userController = require('../controllers/user');
 const sessionController = require('../controllers/session');
+const favouriteController = require('../controllers/favourite');
 
 //-----------------------------------------------------------
 
@@ -153,5 +154,17 @@ router.post('/instants',                       sessionController.loginRequired, 
 router.get('/instants/:instantId(\\d+)/edit',  sessionController.loginRequired, instantController.adminOrAuthorRequired, instantController.edit);
 router.put('/instants/:instantId(\\d+)',       sessionController.loginRequired, instantController.adminOrAuthorRequired, upload.single('image'), instantController.update);
 router.delete('/instants/:instantId(\\d+)',    sessionController.loginRequired, instantController.adminOrAuthorRequired, instantController.destroy);
+
+
+// Routes for the resource favourites of a user
+router.put('/users/:userId(\\d+)/favourites/:instantId(\\d+)',
+    sessionController.loginRequired,
+    sessionController.adminOrMyselfRequired,
+    favouriteController.add);
+router.delete('/users/:userId(\\d+)/favourites/:instantId(\\d+)',
+    sessionController.loginRequired,
+    sessionController.adminOrMyselfRequired,
+    favouriteController.del);
+
 
 module.exports = router;

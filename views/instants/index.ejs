@@ -1,8 +1,19 @@
 
 <div class="right">
-    <form method="get" action="/instants">
+    <form method="get" action="<%= url %>">
         <input type="text" name="search" value="<%= locals.search || '' %>" placeholder="instant to search" autocomplete="off" />
         <input type="submit" value="Search">
+
+        <% if (locals.loginUser) { %>
+            <br/>
+            <div>
+                <label>Solo favoritos:</label>
+                <input type="checkbox" name="searchfavourites"
+                       value="1" <%= locals.searchfavourites ? 'checked' : '' %> >
+                <img class="star" src="/images/star_yellow.png" \>
+            </div>
+        <% } %>
+
     </form>
 </div>
 
@@ -19,9 +30,9 @@
                 <% var attachment = instant.attachment; %>
                 <% include ../attachments/_show %>
             </td>
-            <td colspan="2">
-
-
+            <td>
+                <% include ../favourites/_stars.ejs %>
+            </td>
             <td>
                 <% if (instant.author && instant.author.photo) { %>
                     <img class="miniphoto" src="<%= instant.author.photo.url %>"/>

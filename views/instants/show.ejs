@@ -11,10 +11,12 @@
 
     <div>
         <% var attachment = instant.attachment; %>
-        <% include ../attachments/_show %>
+        <% include ../attachments/_show.ejs %>
     </div>
 
     <div>
+        <% include ../favourites/_stars.ejs %>
+        <br/>
         Title: <b><%= instant.title %></b>
         <br/>
         Description: <b><%= instant.description %></b>
