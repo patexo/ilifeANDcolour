@@ -148,7 +148,7 @@ router.get('/users/:userId(\\d+)/instants', sessionController.loginRequired, ins
 // Routes for the resource /instants
 router.get('/instants',                        instantController.index);
 router.get('/instants/:instantId(\\d+)',       instantController.show);
-router.get('/instants/new',                    sessionController.loginRequired, instantController.new);
+router.get('/instants/new',                    sessionController.loginRequired, instantController.limitPerDay, instantController.new);
 router.post('/instants',                       sessionController.loginRequired, upload.single('image'), instantController.create);
 router.get('/instants/:instantId(\\d+)/edit',  sessionController.loginRequired, instantController.adminOrAuthorRequired, instantController.edit);
 router.put('/instants/:instantId(\\d+)',       sessionController.loginRequired, instantController.adminOrAuthorRequired, upload.single('image'), instantController.update);
