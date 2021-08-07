@@ -17,7 +17,7 @@
         (function() {
             var state =  <%= !!instant.favourite %>;
             var userId = <%= locals.loginUser.id %>;
-            var quizId = <%= instant.id %>;
+            var instantId = <%= instant.id %>;
 
             var img = document.getElementById("star<%= instant.id %>");
             img.src = state ? "/images/star_yellow.png" : "/images/star_grey.png";
