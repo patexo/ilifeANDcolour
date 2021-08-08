@@ -73,38 +73,6 @@ router.delete('/users/tokenOwner/favourites/:instantId_woi(\\d+)',
 
 //-----------------------------------------------------------
 
-// Route to play a random instant.
-//router.get('/instants/random',
-    //instantApi.random);
-
-// Route to check the answer of the given instant.
-//router.get('/instants/:instantId_woi(\\d+)/check',
-    //instantApi.check);
-
-//-----------------------------------------------------------
-
-// Route to start playing random instant.
-//router.get('/instants/randomPlay/new',
-    //instantApi.randomPlayNew);
-
-// Route to get the next random instant to play.
-//router.get('/instants/randomPlay/next',
-    //instantApi.randomPlayNext);
-
-// Route to check the answer of the current random instant.
-//router.get('/instants/randomPlay/check',
-    //instantApi.randomPlayCheck);
-
-//-----------------------------------------------------------
-
-// Route to get 10 random quizzes, including answers.
-// Returns 10 or less depending on the DDBB size.
-// wa = with answers
-//router.get('/instants/random10wa',
-    //instantApi.random10wa);
-
-//-----------------------------------------------------------
-
 // If I am here, then the requested route is not defined.
 router.all('*', function(req, res, next) {
 
