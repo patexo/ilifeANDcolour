@@ -19,12 +19,14 @@ var flash = require('express-flash');
 var methodOverride = require('method-override');
 // Importar MW redirectToHTTPS.
 var redirectToHTTPS = require('express-http-to-https').redirectToHTTPS
+var cors = require('cors');
 // El paquete dotenv debe importarse en app.js y configurarse para que muestre las variables definidas en el fichero .env en process.env.
 require('dotenv').config();
 // importar passport para login session y logout
 const passport = require('passport');
 // Importar MW routers generados del directorio ./routes
-var indexRouter = require('./routes/index');
+var apiRouter = require('./routes/api');
+var htmlRouter = require('./routes/index');
 // Crear aplicación express.
 var app = express();
 
@@ -83,6 +85,9 @@ app.use(passport.initialize( {
 // Conecta la session-delogin con la de cliente.
 app.use(passport.session());
 
+// Control de Acceso HTTP (CORS)
+app.use(cors());
+
 // req.loginUser se copia a res.locals.loginUser para hacerlo visible en todas vistas (para layout.ejs).
 // Dynamic Helper:
 app.use(function(req, res, next) {
@@ -103,7 +108,11 @@ app.use(function(req, res, next) {
 // Instalar MW routers generados:
 // indexRouter atiende la ruta: /
 // usersRouter atiende la ruta: /users
-app.use('/', indexRouter);
+// Routes mounted at '/api'.
+app.use('/api', apiRouter);
+
+// Routes mounted at '/'. (no starting with /api/)
+app.use(/^(?!\/api\/)/, htmlRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

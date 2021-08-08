@@ -74,9 +74,9 @@ router.delete('/login', sessionController.destroy);
 // El botón Cancel envía la solicitud GET /goback. Esta redirecciona a la última ruta guardada con saveBack, es decir la ruta /quizzes.
 // Redirection to the saved restoration route.
 function redirectBack(req, res, next) {
-  const url = req.session.backURL || "/";
-  delete req.session.backURL;
-  res.redirect(url);
+    const url = req.session.backURL || "/";
+    delete req.session.backURL;
+    res.redirect(url);
 }
 
 router.get('/goback', redirectBack);
@@ -84,19 +84,19 @@ router.get('/goback', redirectBack);
 //El MW saveBack guarda en la propiedad req.session.backURL la ruta /quizzes cuando pasa a mostrar la lista de quizzes, pero no guardará /quizzes/new.
 // Save the route that will be the current restoration route.
 function saveBack(req, res, next) {
-  req.session.backURL = req.url;
-  next();
+    req.session.backURL = req.url;
+    next();
 }
 
 // Restoration routes are GET routes that do not end in:
 //   /new, /edit, /play, /check, /login or /:id.
 router.get(
     [
-      '/',
-      '/contact',
-      '/users',
-      '/users/:id(\\d+)/instants',
-      '/instants'
+        '/',
+        '/contact',
+        '/users',
+        '/users/:id(\\d+)/instants',
+        '/instants'
     ],
     saveBack);
 
@@ -106,12 +106,12 @@ router.get(
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index');
+    res.render('index');
 });
 
 /* Contact page. */
 router.get('/contact', (req, res, next) => {
-  res.render('contact');
+    res.render('contact');
 });
 
 // Autoload for routes using :instantId
@@ -124,26 +124,32 @@ router.get('/users',                    sessionController.loginRequired, userCon
 router.get('/users/:userId(\\d+)',      sessionController.loginRequired, userController.show);
 
 if (!!process.env.QUIZ_OPEN_REGISTER) {
-  router.get('/users/new',
-      userController.new);
-  router.post('/users',
-      upload.single('photo'),
+    router.get('/users/new',
+        userController.new);
+    router.post('/users',
+        upload.single('photo'),
       userController.create);
 } else {
   router.get('/users/new',
-      sessionController.loginRequired,
-      sessionController.adminRequired,
-      userController.new);
+        sessionController.loginRequired,
+        sessionController.adminRequired,
+        userController.new);
   router.post('/users',
-      sessionController.loginRequired,
-      sessionController.adminRequired,
-      upload.single('photo'),
+        sessionController.loginRequired,
+        sessionController.adminRequired,
+        upload.single('photo'),
       userController.create);
 }
 
 router.get('/users/:userId(\\d+)/edit',    sessionController.loginRequired, userController.isLocalRequired, sessionController.adminOrMyselfRequired, userController.edit);
 router.put('/users/:userId(\\d+)',         sessionController.loginRequired, userController.isLocalRequired, sessionController.adminOrMyselfRequired, upload.single('photo'), userController.update);
 router.delete('/users/:userId(\\d+)',      sessionController.loginRequired, sessionController.adminOrMyselfRequired,userController.destroy);
+
+router.put('/users/:userId(\\d+)/token',
+    sessionController.loginRequired,
+    sessionController.adminOrMyselfRequired,
+    userController.createToken);   // generar un nuevo token
+    
 router.get('/users/:userId(\\d+)/instants', sessionController.loginRequired, instantController.index);
 
 // Routes for the resource /instants
