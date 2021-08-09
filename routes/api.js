@@ -23,7 +23,7 @@ router.all('*', tokenApi.tokenRequired);
 //-----------------------------------------------------------
 
 // Autoload the objects associated to the given route parameter.
-router.param('userId',       userApi.load);
+router.param('userId',          userApi.load);
 router.param('instantId',       instantApi.load);
 
 router.param('instantId_woi',   instantApi.load_woi);
@@ -46,10 +46,10 @@ router.get('/users/tokenOwner',
 
 // Routes for the instants resource.
 
-router.get('/instants',
+router.get('/instants.:format?',
     instantApi.index);
 
-router.get('/instants/:instantId(\\d+)',
+router.get('/instants/:instantId(\\d+).:format?',
     instantApi.show);
 
 router.get('/users/:userId(\\d+)/instants',

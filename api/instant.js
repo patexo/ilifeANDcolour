@@ -1,6 +1,7 @@
-
 const {models} = require('../models');
 const Sequelize = require('sequelize');
+
+const js2xmlparser = require("js2xmlparser");
 
 const addPagenoToUrl = require('../helpers/paginate').addPagenoToUrl;
 
@@ -180,11 +181,39 @@ exports.index = async (req, res, next) => {
             nextUrl = addPagenoToUrl(`${protocol}://${req.headers["host"]}${req.baseUrl}${req.url}`, nextPage)
         }
 
-        res.json({
-            instants,
-            pageno,
-            nextUrl
-        });
+        const format = (req.params.format || 'json').toLowerCase();
+
+        switch (format) {
+            case 'json':
+
+                res.json({
+                    instants,
+                    pageno,
+                    nextUrl
+                });
+                break;
+
+            case 'xml':
+
+                var options = {
+                    typeHandlers: {
+                        "[object Null]": function(value) {
+                            return js2xmlparser.Absent.instance;
+                        }
+                    }
+                };
+
+                res.set({
+                    'Content-Type': 'application/xml'
+                }).send(
+                    js2xmlparser.parse("instants", {instant: instants}, options)
+                );
+                break;
+
+            default:
+                console.log('No supported format \".' + format + '\".');
+                res.sendStatus(406);
+        }
 
     } catch (error) {
         next(error);
@@ -202,11 +231,41 @@ exports.show = (req, res, next) => {
     //   if this instant is one of my favourites, then I create
     //   the attribute "favourite = true"
 
-    res.json({
+    const format = (req.params.format || 'json').toLowerCase();
+
+    const data = {
         id: instant.id,
         title: instant.title,
-        author: instant.author,
-        attachment: instant.attachment,
+        author: instant.author && instant.author.get({plain:true}),
+        attachment: instant.attachment && instant.attachment.get({plain:true}),
         favourite: instant.fans.some(fan => fan.id == token.userId)
-    });
+    };
+
+    switch (format) {
+        case 'json':
+
+            res.json(data);
+            break;
+
+        case 'xml':
+
+            var options = {
+                typeHandlers: {
+                    "[object Null]": function (value) {
+                        return js2xmlparser.Absent.instance;
+                    }
+                }
+            };
+
+            res.set({
+                'Content-Type': 'application/xml'
+            }).send(
+                js2xmlparser.parse("instant", data, options)
+            );
+            break;
+
+        default:
+            console.log('No supported format \".' + format + '\".');
+            res.sendStatus(406);
+    }
 };
