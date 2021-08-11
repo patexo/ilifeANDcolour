@@ -12,10 +12,10 @@ var http = require('http');
 // - fs: acceso a ficheros del servidor
 // - path: gestor de rutas
 // - os: propiedades del sistema operativo
-const https = require('https');
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
+// redirectToHTTPS const https = require('https');
+// redirectToHTTPS const fs = require('fs');
+// redirectToHTTPS const path = require('path');
+// redirectToHTTPS const os = require('os');
 
 /**
  * Get port from environment and store in Express.
@@ -35,15 +35,21 @@ var server = http.createServer(app);
  */
 
 server.listen(port);
-server.on('error', onError.bind(undefined, port));
-server.on('listening', onListening.bind(undefined, server));
+// redirectToHTTPS
+server.on('error', onError);
+// redirectToHTTPS
+server.on('listening', onListening);
+// redirectToHTTPS server.on('error', onError.bind(undefined, port));
+// redirectToHTTPS server.on('listening', onListening.bind(undefined, server));
 
 /**
  * ======================================================================
  * Creates HTTPS server if there exist certificate files.
  * ======================================================================
  */
-try {
+// redirectToHTTPS
+/**
+ try {
     const options = {
         key: fs.readFileSync("/etc/certificates/llave.pem"),
         cert: fs.readFileSync("/etc/certificates/certificado.pem"),
@@ -68,6 +74,7 @@ try {
     debug(`ERROR: ${err.message || err}.`);
   }
 }
+*/
 
 /**
  * Normalize a port into a number, string, or false.
